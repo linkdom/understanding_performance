@@ -21,7 +21,7 @@ func main() {
         values := scanner.Bytes()
 
         for i, v := range values {
-            binaries[i] = fmt.Sprintf("%08b\n", v)
+            binaries[i] = fmt.Sprintf("%08b", v)
         }
     }
 
