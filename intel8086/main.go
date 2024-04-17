@@ -3,22 +3,42 @@ package main
 import (
 	"bufio"
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func main() {
-    file, err := os.Open("/home/dom/development/go/understanding_performance/intel8086/many_register_move")
+    input := flag.String("input", "", "absolute path including filename")
+    flag.Parse()
+
+    if *input == "" {
+        log.Fatal("No path provided")
+    }
+
+    file, err := os.Open(*input)
     if err != nil {
          log.Fatal(err)
     }
+    output := filepath.Dir(*input) + "/output_" + filepath.Base(*input) + ".asm"
+
+    f, err := os.Create(output)
+    if err != nil {
+        log.Fatal(err)
+    }
+
     defer file.Close()
+    defer f.Close()
 
     scanner := bufio.NewScanner(file)
     var binaries []string
-
-    fmt.Println("bits 16\n")
+ 
+    _, err = f.WriteString("bits 16\n\n")
+    if err != nil {
+        log.Fatal(err)
+    }
 
     for scanner.Scan() {
         values := scanner.Bytes()
@@ -46,8 +66,10 @@ func main() {
                 fmt.Println(err)
             }
 
-            fmt.Printf("%s %s, %s\n", instruction, destReg, sourceReg)
-
+            _, err = f.WriteString(fmt.Sprintf("%s %s, %s\n", instruction, destReg, sourceReg))
+            if err != nil {
+                log.Fatal(err)
+            }
         }
 
     }
