@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-    file, err := os.Open("/home/dom/development/go/understanding_performance/intel8086/single_register_move")
+    file, err := os.Open("/home/dom/development/go/understanding_performance/intel8086/many_register_move")
     if err != nil {
          log.Fatal(err)
     }
@@ -17,6 +17,8 @@ func main() {
 
     scanner := bufio.NewScanner(file)
     var binaries []string
+
+    fmt.Println("bits 16\n")
 
     for scanner.Scan() {
         values := scanner.Bytes()
@@ -26,25 +28,28 @@ func main() {
             binaries = append(binaries, fmt.Sprintf("%08b", v))
         }
 
-        opcode := binaries[0][0:6]
-        d := binaries[0][6]
-        w := binaries[0][7]
-        mod := binaries[1][0:2] 
-        reg := binaries[1][2:5]
-        rm := binaries[1][5:]
-        _ = mod
+        for i := 1; i < len(binaries); i+=2 {
+            opcode := binaries[i-1][0:6]
+            d := binaries[i-1][6]
+            w := binaries[i-1][7]
+            mod := binaries[i][0:2] 
+            reg := binaries[i][2:5]
+            rm := binaries[i][5:]
+            _ = mod
 
-        if opcode == "100010" {
-            instruction = "mov"
+            if opcode == "100010" {
+                instruction = "mov"
+            }
+
+            sourceReg, destReg, err := identifyRegisters(string(d), string(w), reg, rm)
+            if err != nil {
+                fmt.Println(err)
+            }
+
+            fmt.Printf("%s %s, %s\n", instruction, destReg, sourceReg)
+
         }
 
-        sourceReg, destReg, err := identifyRegisters(string(d), string(w), reg, rm)
-        if err != nil {
-            fmt.Println(err)
-        }
-
-        fmt.Println("bits 16\n")
-        fmt.Printf("%s %s, %s\n", instruction, destReg, sourceReg)
     }
 }
 
