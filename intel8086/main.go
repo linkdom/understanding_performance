@@ -55,10 +55,13 @@ func main() {
             mod := binaries[i][0:2] 
             reg := binaries[i][2:5]
             rm := binaries[i][5:]
-            _ = mod
 
             if opcode == "100010" {
                 instruction = "mov"
+            }
+
+            if mod != "11" {
+                log.Fatal("Unknown mod value")
             }
 
             sourceReg, destReg, err := identifyRegisters(string(d), string(w), reg, rm)
