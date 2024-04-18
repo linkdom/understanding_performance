@@ -11,14 +11,17 @@ import (
 )
 
 func main() {
-    input := flag.String("input", "", "absolute path including filename")
+    input := flag.String("input", "", "path including filename")
     flag.Parse()
 
     if *input == "" {
         log.Fatal("No path provided")
     }
 
-    file, err := os.Open(*input)
+    pathPtr := *input
+    path, err := filepath.Abs(pathPtr)
+
+    file, err := os.Open(path)
     if err != nil {
          log.Fatal(err)
     }
