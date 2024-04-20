@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 
@@ -36,6 +37,12 @@ func ProcessFile(inputPath, outputPath string) error {
 			binaries = append(binaries, fmt.Sprintf("%08b", v))
 		}
 
+        numByte, err := differenciateOpcode(binaries[0])
+        if err != nil {
+            return err
+        }
+        _ = numByte
+
 		for i := 1; i < len(binaries); i += 2 {
 			err = processInstruction(binaries[i-1], binaries[i], f)
 			if err != nil {
@@ -44,6 +51,39 @@ func ProcessFile(inputPath, outputPath string) error {
 		}
 	}
 	return nil
+}
+
+// In here i need to figure out what opcode we have got
+// so i will know how many bytes i need to process after this 
+// byte, the int tells me how many bytes this instruction has
+func differenciateOpcode(binary string) (uint8, error) {
+
+    if binary[0:4] == "1011" {
+        if string(binary[5]) == "1" {
+            return 3, nil
+        }
+        return 2, nil
+    }
+
+    if binary[0:6] == "100010" {
+        return 2, nil
+    }
+
+    switch binary[0:7] {
+    case "1100011":
+        if string(binary[8]) == "1" {
+            return 6, nil
+        }
+        return 5, nil
+    case "1010000", "1010001":
+        if string(binary[8]) == "1" {
+            return 3, nil
+        }
+        return 2, nil
+    default:
+        return 0, errors.New("Unknown Opcode")
+    }
+
 }
 
 func processInstruction(binary1, binary2 string, f *os.File) (error) {
