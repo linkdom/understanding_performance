@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"intel8086/pkg/parser"
-	"intel8086/pkg/utils"
 )
 
 func main() {
@@ -22,9 +21,7 @@ func main() {
         log.Fatal(err)
     }
 
-    outputFile := utils.OutputFileName(*input)
-
-    if err := parser.ProcessFile(path, outputFile); err != nil {
+    if err := parser.ProcessFile(path); err != nil {
         log.Fatal(err)
     }
 }
