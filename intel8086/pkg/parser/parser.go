@@ -17,21 +17,33 @@ func ProcessFile(inputPath string) error {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	var binaries []string
+	var binaries [][]string
 
 	fmt.Printf("bits 16\n\n")
 
 	for scanner.Scan() {
 		values := scanner.Bytes()
+        numByte := 0
 
-		for _, v := range values {
-			binaries = append(binaries, fmt.Sprintf("%08b", v))
+        // ideally we would make a map with slices of strings and
+        // group the values together in this step?
+		for k, v := range values {
+            var byteSlice []string
+
+            instruction, numByte, err := differenciateOpcode(fmt.Sprintf("%08b", v))
+            if err != nil {
+                return err
+            }
+            _ = instruction
+
+            for i := numByte; i == 1; i-- {
+                byteSlice = append(byteSlice, fmt.Sprintf("%08b", v))
+            }
+
+            binaries = append(binaries, byteSlice)
+
 		}
 
-        instruction, numByte, err := differenciateOpcode(binaries[0])
-        if err != nil {
-            return err
-        }
         _ = numByte
 
 		for i := 1; i < len(binaries); i += 2 {
@@ -40,6 +52,7 @@ func ProcessFile(inputPath string) error {
 				return err
 			}
 		}
+
 	}
 	return nil
 }
@@ -47,7 +60,7 @@ func ProcessFile(inputPath string) error {
 // In here i need to figure out what opcode we have got
 // so i will know how many bytes i need to process after this 
 // byte, the int tells me how many bytes this instruction has
-func differenciateOpcode(binary string) (string, uint8, error) {
+func differenciateOpcode(binary string) (string, int, error) {
 
     if binary[0:4] == "1011" {
         if string(binary[5]) == "1" {
