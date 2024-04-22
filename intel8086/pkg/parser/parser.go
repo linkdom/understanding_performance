@@ -27,7 +27,7 @@ func ProcessFile(inputPath string) error {
         current := 0
         var instruction string
 
-        fmt.Println(values)
+        fmt.Println(fmt.Sprintf("%08b", values))
         // ideally we would make a map with slices of strings and
         // group the values together in this step?
 		for k, v := range values {
@@ -41,8 +41,9 @@ func ProcessFile(inputPath string) error {
                     continue
                 }
             }
+            fmt.Println(fmt.Sprintf("%08b", v))
 
-            instruction, numByte, err = differenciateOpcode(fmt.Sprintf("%08b", v))
+            instruction, numByte, err = differenciateOpcode(fmt.Sprintf("%08b", v), fmt.Sprintf("%08b", values[k+1]))
             if err != nil {
                 return err
             }
@@ -81,16 +82,28 @@ func ProcessFile(inputPath string) error {
 // In here i need to figure out what opcode we have got
 // so i will know how many bytes i need to process after this 
 // byte, the int tells me how many bytes this instruction has
-func differenciateOpcode(binary string) (string, int, error) {
+func differenciateOpcode(binary, secondaryByte string) (string, int, error) {
+    fmt.Println(binary, secondaryByte)
+    fmt.Println(secondaryByte[0:2])
 
     if binary[0:4] == "1011" {
-        if string(binary[5]) == "1" {
+        if string(binary[4]) == "1" {
             return "mov", 3, nil
         }
         return "mov", 2, nil
     }
 
     if binary[0:6] == "100010" {
+
+        if secondaryByte[0:2] == "00" {
+            return "mov", 2, nil
+        } else if secondaryByte[0:2] == "01" {
+            return "mov", 3, nil
+        } else if secondaryByte[0:2] == "10" {
+            return "mov", 4, nil
+        }
+
+
         return "mov", 2, nil
     }
 
