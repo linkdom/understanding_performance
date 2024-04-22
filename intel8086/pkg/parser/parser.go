@@ -24,34 +24,55 @@ func ProcessFile(inputPath string) error {
 	for scanner.Scan() {
 		values := scanner.Bytes()
         numByte := 0
+        current := 0
+        var instruction string
 
+        fmt.Println(values)
         // ideally we would make a map with slices of strings and
         // group the values together in this step?
 		for k, v := range values {
             var byteSlice []string
+            fmt.Printf("current top: %d\n", current)
+            fmt.Printf("numbyte top: %d\n", numByte)
 
-            instruction, numByte, err := differenciateOpcode(fmt.Sprintf("%08b", v))
+            if k != 0 {
+                if k <= current {
+                    fmt.Println("continuing")
+                    continue
+                }
+            }
+
+            instruction, numByte, err = differenciateOpcode(fmt.Sprintf("%08b", v))
             if err != nil {
                 return err
             }
+            fmt.Printf("numbyte after eval: %d\n", numByte)
             _ = instruction
+            current = k+(numByte-1)
+            end := k
 
-            for i := numByte; i == 1; i-- {
-                byteSlice = append(byteSlice, fmt.Sprintf("%08b", v))
+            fmt.Printf("current after eval: %d\n", current)
+            fmt.Printf("end after eval: %d\n", current)
+
+            for i := current; i >= end; i-- {
+                byteSlice = append(byteSlice, fmt.Sprintf("%08b", values[i]))
             }
+            fmt.Println("kajsdf")
+            fmt.Println(byteSlice)
 
             binaries = append(binaries, byteSlice)
+            fmt.Println(binaries)
 
 		}
 
         _ = numByte
 
-		for i := 1; i < len(binaries); i += 2 {
-			err = processInstruction(binaries[i-1], binaries[i],instruction)
-			if err != nil {
-				return err
-			}
-		}
+		// for i := 1; i < len(binaries); i += 2 {
+		// 	err = processInstruction(binaries[i-1], binaries[i],instruction)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// }
 
 	}
 	return nil
