@@ -28,8 +28,12 @@ func ProcessFile(inputPath string) error {
         var instruction string
 
         fmt.Println(fmt.Sprintf("%08b", values))
-        // ideally we would make a map with slices of strings and
-        // group the values together in this step?
+
+        // There is an issue with a mov [bp, si], cl instruction
+        // I don't yet understand why, i should get two bytes in this
+        // instruction and currently i only receive one byte (10001000)
+        // this needs further debugging but for now i have commented this
+        // assembly instruction to continue working
 		for k, v := range values {
             var byteSlice []string
             fmt.Printf("current top: %d\n", current)

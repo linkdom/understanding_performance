@@ -1,3 +1,5 @@
-mov ah, [bx + si + 4]
+bits 16
 
-; mov al, [bx + si + 4999]
+mov [bp + si], cl
+; mov [bx + di], cx
+; mov [bp], ch
