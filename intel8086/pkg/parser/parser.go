@@ -117,22 +117,32 @@ func differenciateOpcode(binary, secondaryByte string) (string, int, error) {
 }
 
 // the slice is backwards so i need to loop that way
-// also, I should be more efficient because i already 
-// try to differenciate the opcode, would be odd to do it again
 func processInstruction(binaries []string, instruction string) (error) {
+    var d string
+    var w string
+    var mod string
+    var reg string
+    var rm string
 
-	// d := binary1[6]
-	// w := binary1[7]
-	// mod := binary2[0:2]
-	// reg := binary2[2:5]
-	// rm := binary2[5:]
+    //the first byte that comes is the one with the opcode
+    //i need to check how i then proceed with the following bytes
+    //because they have variable length
+    for i := len(binaries); i >= 0; i-- {
+        d = binaries[i][6:6]
+        w = binaries[i][7:7]
+        mod = binaries[i][0:2]
+        reg = binaries[i][2:5]
+        rm = binaries[i][5:]
+    }
+    _ = mod
 
-	// sourceReg, destReg, err := registers.IdentifyRegisters(string(d), string(w), reg, rm)
-	// if err != nil {
-	// 	return err
-	// }
 
-	// fmt.Printf("%s %s, %s\n", instruction, destReg, sourceReg)
+	sourceReg, destReg, err := registers.IdentifyRegisters(string(d), string(w), reg, rm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s %s, %s\n", instruction, destReg, sourceReg)
 	return nil
 }
 
